@@ -4,11 +4,16 @@ const {
   addContact,
   removeContact,
   updateContact,
-} = require("../models/contacts");
+} = require("../service/contactsService");
 
 const getContacts = async (req, res) => {
-  const contacts = await listContacts();
-  res.json({ contacts, status: "succes" });
+  try {
+    const contacts = await listContacts();
+    console.log(contacts);
+    res.json({ contacts, status: "succes" });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getContact = async (req, res) => {

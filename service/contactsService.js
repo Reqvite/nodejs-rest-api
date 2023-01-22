@@ -3,10 +3,13 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const contactsPath = path.join(__dirname, "./contacts.json");
 
+const { Contact } = require("../models/contactModel");
+
 const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath);
-    return JSON.parse(data);
+    const contacts = await Contact.find({});
+    console.log(contacts);
+    return contacts;
   } catch (err) {
     console.log(err);
   }
