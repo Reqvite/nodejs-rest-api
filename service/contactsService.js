@@ -10,7 +10,6 @@ const getContactById = async (contactId) => {
   if (!mongoose.isValidObjectId(contactId)) {
     throw new WrongParametersError(`Id format is wrong`);
   }
-
   const contact = await Contact.findById(contactId);
   if (!contact) {
     throw new WrongParametersError(`Not found`);
@@ -24,23 +23,43 @@ const removeContact = async (contactId) => {
     throw new WrongParametersError(`Id format is wrong`);
   }
   const contact = await Contact.findByIdAndRemove(contactId);
-
   if (!contact) {
     throw new WrongParametersError(`Not found`);
   }
-
-  return contact;
 };
 
-const addContact = async (name, email, phone) => {
-  const contact = new Contact({ name, email, phone });
+const addContact = async (name, email, phone, favorite) => {
+  const contact = new Contact({ name, email, phone, favorite });
   await contact.save();
 };
 
 const updateContact = async (contactId, { name, email, phone }) => {
-  await Contact.findByIdAndUpdate(contactId, {
+  if (!mongoose.isValidObjectId(contactId)) {
+    throw new WrongParametersError(`Id format is wrong`);
+  }
+
+  const contact = await Contact.findByIdAndUpdate(contactId, {
     $set: { name, email, phone },
   });
+
+  if (!contact) {
+    throw new WrongParametersError(`Not found`);
+  }
+};
+
+const updateStatusContact = async (contactId, body) => {
+  const contact = await Contact.findByIdAndUpdate(
+    contactId,
+    {
+      favorite: body.favorite,
+    },
+    { new: true }
+  );
+
+  if (!contact) {
+    throw new WrongParametersError(`Not found`);
+  }
+  return contact;
 };
 
 module.exports = {
@@ -49,4 +68,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 };

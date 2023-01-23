@@ -5,6 +5,13 @@ class ValidationError extends Error {
   }
 }
 
+class MissingFieldError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 400;
+  }
+}
+
 class WrongParametersError extends Error {
   constructor(message) {
     super(message);
@@ -14,5 +21,6 @@ class WrongParametersError extends Error {
 
 module.exports = {
   WrongParametersError,
+  MissingFieldError,
   ValidationError,
 };
