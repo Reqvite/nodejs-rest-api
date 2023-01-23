@@ -31,6 +31,7 @@ const removeContact = async (contactId) => {
 const addContact = async (name, email, phone, favorite) => {
   const contact = new Contact({ name, email, phone, favorite });
   await contact.save();
+  return contact;
 };
 
 const updateContact = async (contactId, { name, email, phone }) => {
@@ -38,13 +39,19 @@ const updateContact = async (contactId, { name, email, phone }) => {
     throw new WrongParametersError(`Id format is wrong`);
   }
 
-  const contact = await Contact.findByIdAndUpdate(contactId, {
-    $set: { name, email, phone },
-  });
+  const contact = await Contact.findByIdAndUpdate(
+    contactId,
+    {
+      $set: { name, email, phone },
+    },
+    { new: true }
+  );
 
   if (!contact) {
     throw new WrongParametersError(`Not found`);
   }
+
+  return contact;
 };
 
 const updateStatusContact = async (contactId, body) => {
