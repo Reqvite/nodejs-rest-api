@@ -8,7 +8,8 @@ const {
 } = require("../service/contactsService");
 
 const getContactsController = async (req, res) => {
-  const contacts = await listContacts();
+  const { page, limit } = req.query;
+  const contacts = await listContacts({ page, limit });
   res.json({ status: "succes", code: 200, contacts });
 };
 
