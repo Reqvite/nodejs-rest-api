@@ -5,24 +5,27 @@ class RestApiError extends Error {
   }
 }
 
-class ValidationError extends Error {
+class ValidationError extends RestApiError {
   constructor(message) {
     super(message);
     this.status = 400;
+    this.type = "Bad Request";
   }
 }
 
-class NotAuthorizideError extends Error {
+class NotAuthorizideError extends RestApiError {
   constructor(message) {
     super(message);
     this.status = 401;
+    this.type = "Unauthorized";
   }
 }
 
-class WrongParametersError extends Error {
+class WrongParametersError extends RestApiError {
   constructor(message) {
     super(message);
     this.status = 404;
+    this.type = "Failure";
   }
 }
 
@@ -30,6 +33,7 @@ class RegistrationConflictError extends RestApiError {
   constructor(message) {
     super(message);
     this.status = 409;
+    this.type = "Conflict";
   }
 }
 

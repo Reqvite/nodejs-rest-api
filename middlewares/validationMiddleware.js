@@ -35,7 +35,7 @@ module.exports = {
     }
     next();
   },
-  registrationValidation: (req, res, next) => {
+  authValidation: (req, res, next) => {
     const schema = Joi.object({
       email: Joi.string()
         .email({
