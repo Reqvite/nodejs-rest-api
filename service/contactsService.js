@@ -2,8 +2,11 @@ const mongoose = require("mongoose");
 const { Contact } = require("../models/contactModel");
 const { WrongParametersError } = require("../helpers/errors");
 
-const listContacts = async () => {
-  return await Contact.find({});
+const listContacts = async ({ page, limit, favorite }) => {
+  const skip = (page - 1) * limit;
+  const searchParams = favorite ? { favorite } : {};
+  const contacts = await Contact.find(searchParams).skip(skip).limit(limit);
+  return contacts;
 };
 
 const getContactById = async (contactId) => {
