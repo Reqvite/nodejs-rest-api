@@ -1,3 +1,10 @@
+class RestApiError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 400;
+  }
+}
+
 class ValidationError extends Error {
   constructor(message) {
     super(message);
@@ -12,6 +19,13 @@ class MissingFieldError extends Error {
   }
 }
 
+class NotAuthorizideError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 401;
+  }
+}
+
 class WrongParametersError extends Error {
   constructor(message) {
     super(message);
@@ -20,7 +34,9 @@ class WrongParametersError extends Error {
 }
 
 module.exports = {
+  RestApiError,
   WrongParametersError,
   MissingFieldError,
   ValidationError,
+  NotAuthorizideError,
 };

@@ -31,4 +31,6 @@ router.patch(
   asyncWrapper(updateStatusContactController)
 );
 
-module.exports = router;
+module.exports = {
+  contactsRouter: router,
+};
