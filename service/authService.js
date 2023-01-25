@@ -1,13 +1,17 @@
 const { User } = require("../models/userModel");
+const { RegistrationConflictError } = require("../helpers/errors");
 
 const registration = async (email, password) => {
-  const user = new User({
-    email,
-    password,
-  });
-  await user.save();
-
-  return user;
+  try {
+    const user = new User({
+      email,
+      password,
+    });
+    await user.save();
+    return user;
+  } catch (err) {
+    throw new RegistrationConflictError("Email in use");
+  }
 };
 
 const login = async () => {};
