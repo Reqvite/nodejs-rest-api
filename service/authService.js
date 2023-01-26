@@ -2,6 +2,7 @@ const { User } = require("../models/userModel");
 const {
   RegistrationConflictError,
   NotAuthorizideError,
+  WrongParametersError,
 } = require("../helpers/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -66,9 +67,25 @@ const currentUser = async (token) => {
   return await User.findOne({ token }, { email: 1, subscription: 1, _id: 0 });
 };
 
+const updateSubscription = async (id, { subscription }) => {
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      subscription,
+    },
+    { new: true }
+  );
+
+  if (!user) {
+    throw new WrongParametersError(`Not found`);
+  }
+  return { email: user.email, subscription: user.subscription };
+};
+
 module.exports = {
   registration,
   login,
   logout,
   currentUser,
+  updateSubscription,
 };

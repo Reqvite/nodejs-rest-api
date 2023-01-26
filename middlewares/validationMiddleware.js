@@ -52,4 +52,20 @@ module.exports = {
     }
     next();
   },
+
+  patchUserSubscriptionValidation: (req, res, next) => {
+    const schema = Joi.object({
+      subscription: Joi.string().valid("starter", "pro", "business").required(),
+    });
+    const validationResult = schema.validate(req.body);
+    if (validationResult.error) {
+      next(
+        new ValidationError(
+          "There are only starter, pro, business subscriptions available"
+        )
+      );
+    }
+    console.log("patchmiddle");
+    next();
+  },
 };
