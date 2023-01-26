@@ -21,7 +21,6 @@ const authMiddleware = async (req, res, next) => {
       next(new NotAuthorizideError("Not authorized"));
     }
     req.user = user;
-    console.log("authmidll");
     next();
   } catch (err) {
     next(err);

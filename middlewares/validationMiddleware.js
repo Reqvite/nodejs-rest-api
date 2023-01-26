@@ -65,7 +65,6 @@ module.exports = {
         )
       );
     }
-    console.log("patchmiddle");
     next();
   },
 };
