@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.post("/signup", authValidation, asyncWrapper(registrationController));
 router.post("/login", authValidation, asyncWrapper(loginContoller));
-router.post("/current", authMiddleware, asyncWrapper(currentUserController));
+router.get("/current", authMiddleware, asyncWrapper(currentUserController));
 router.post("/logout", authMiddleware, asyncWrapper(logoutController));
 router.patch(
   "/",
