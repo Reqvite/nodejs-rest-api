@@ -5,9 +5,11 @@ const {
   logoutController,
   currentUserController,
   updateSubscriptionController,
+  updateUserAvatarController,
 } = require("../../controllers/authController");
 const { asyncWrapper } = require("../../helpers/apiHelpers");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
+const { uploadMiddleware } = require("../../middlewares/filesMiddleWare");
 const {
   authValidation,
   patchUserSubscriptionValidation,
@@ -16,13 +18,19 @@ const router = express.Router();
 
 router.post("/signup", authValidation, asyncWrapper(registrationController));
 router.post("/login", authValidation, asyncWrapper(loginContoller));
-router.post("/current", authMiddleware, asyncWrapper(currentUserController));
+router.get("/current", authMiddleware, asyncWrapper(currentUserController));
 router.post("/logout", authMiddleware, asyncWrapper(logoutController));
 router.patch(
   "/",
   authMiddleware,
   patchUserSubscriptionValidation,
   asyncWrapper(updateSubscriptionController)
+);
+router.patch(
+  "/avatars",
+  authMiddleware,
+  uploadMiddleware.single("avatar"),
+  updateUserAvatarController
 );
 
 module.exports = {
