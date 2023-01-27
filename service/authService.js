@@ -6,17 +6,21 @@ const {
 } = require("../helpers/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const gravatar = require("gravatar");
 
 const registration = async (email, password) => {
+  const avatarURL = gravatar.url(email);
   try {
     const user = new User({
       email,
       password,
+      avatarURL,
     });
     await user.save();
     return {
       email: user.email,
       subscription: user.subscription,
+      avatarURL,
     };
   } catch (err) {
     throw new RegistrationConflictError("Email in use");
