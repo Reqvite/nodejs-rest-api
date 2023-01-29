@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   registrationController,
+  registrationConfirmationController,
   loginContoller,
   logoutController,
   currentUserController,
@@ -19,6 +20,10 @@ const router = express.Router();
 router.post("/signup", authValidation, asyncWrapper(registrationController));
 router.post("/login", authValidation, asyncWrapper(loginContoller));
 router.get("/current", authMiddleware, asyncWrapper(currentUserController));
+router.get(
+  "/verify/:verificationToken",
+  asyncWrapper(registrationConfirmationController)
+);
 router.post("/logout", authMiddleware, asyncWrapper(logoutController));
 router.patch(
   "/",
