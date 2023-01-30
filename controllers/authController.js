@@ -6,6 +6,7 @@ const {
   updateSubscription,
   updateUserAvatar,
   registrationConfirmation,
+  resendVerificationEmail,
 } = require("../service/authService");
 
 const registrationController = async (req, res) => {
@@ -20,6 +21,14 @@ const registrationConfirmationController = async (req, res) => {
   await registrationConfirmation(verificationToken);
 
   res.json({ status: "OK", code: 200, message: "Verification successful" });
+};
+
+const resendVerificationEmailController = async (req, res) => {
+  const { email } = req.body;
+
+  await resendVerificationEmail(email);
+
+  res.json({ status: "OK", code: 200, message: "Verification email sent" });
 };
 
 const loginContoller = async (req, res) => {
@@ -59,4 +68,5 @@ module.exports = {
   logoutController,
   updateSubscriptionController,
   updateUserAvatarController,
+  resendVerificationEmailController,
 };

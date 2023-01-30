@@ -7,6 +7,7 @@ const {
   currentUserController,
   updateSubscriptionController,
   updateUserAvatarController,
+  resendVerificationEmailController,
 } = require("../../controllers/authController");
 const { asyncWrapper } = require("../../helpers/apiHelpers");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
@@ -14,6 +15,7 @@ const { uploadMiddleware } = require("../../middlewares/filesMiddleWare");
 const {
   authValidation,
   patchUserSubscriptionValidation,
+  resendVerificationEmailValidation,
 } = require("../../middlewares/validationMiddleware");
 const router = express.Router();
 
@@ -25,6 +27,11 @@ router.get(
   asyncWrapper(registrationConfirmationController)
 );
 router.post("/logout", authMiddleware, asyncWrapper(logoutController));
+router.post(
+  "/verify/",
+  resendVerificationEmailValidation,
+  asyncWrapper(resendVerificationEmailController)
+);
 router.patch(
   "/",
   authMiddleware,

@@ -11,37 +11,32 @@ const {
   RegistrationConflictError,
   NotAuthorizideError,
   WrongParametersError,
+  RestApiError,
 } = require("../helpers/errors");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const registration = async (email, password) => {
   const avatarURL = gravatar.url(email);
+  const verificationToken = uuidv4();
   try {
     const user = new User({
       email,
       password,
       avatarURL,
-      verificationToken: uuidv4(),
+      verificationToken,
     });
     await user.save();
 
     const msg = {
-      to: "reqvite2233@gmail.com",
+      to: email,
       from: "reqvite2233@gmail.com",
-      subject: "Sending with SendGrid is Fun",
-      text: "and easy to do anywhere, even with Node.js",
-      html: "<strong>and easy to do anywhere, even with Node.js</strong>",
+      subject: "Rest API verification",
+      text: `Follow the link to confirm your registration http://localhost:3000/api/users/verify/${verificationToken}`,
+      html: `<h2>Follow the link to confirm your registration:<a href="http://localhost:3000/api/users/verify/${verificationToken}">Verification token</a><h2>`,
     };
 
-    sgMail
-      .send(msg)
-      .then(() => {
-        console.log("Email sent");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    await sgMail.send(msg);
 
     return {
       email: user.email,
@@ -62,7 +57,36 @@ const registrationConfirmation = async (verificationToken) => {
   });
 };
 
+const resendVerificationEmail = async (email) => {
+  const verificationToken = uuidv4();
+  const { verify } = await User.findOne({ email });
+
+  if (verify) {
+    throw new RestApiError("Verification has already been passed");
+  }
+
+  const user = await User.findOneAndUpdate({ email }, { verificationToken });
+  const msg = {
+    to: email,
+    from: "reqvite2233@gmail.com",
+    subject: "Rest API verification",
+    text: `Follow the link to confirm your registration http://localhost:3000/api/users/verify/${verificationToken}`,
+    html: `<h2>Follow the link to confirm your registration:<a href="http://localhost:3000/api/users/verify/${verificationToken}">Verification token</a><h2>`,
+  };
+
+  await sgMail.send(msg);
+
+  return {
+    email: user.email,
+    subscription: user.subscription,
+  };
+};
+
 const login = async (email, password) => {
+  const { verify } = await User.findOne({ email });
+  if (!verify) {
+    throw new NotAuthorizideError("Please confirm your registration.");
+  }
   const user = await User.findOne({ email, verify: true });
   if (!user) {
     throw new NotAuthorizideError("Email or password is wrong");
@@ -150,4 +174,5 @@ module.exports = {
   updateSubscription,
   updateUserAvatar,
   registrationConfirmation,
+  resendVerificationEmail,
 };

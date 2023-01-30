@@ -67,4 +67,19 @@ module.exports = {
     }
     next();
   },
+  resendVerificationEmailValidation: (req, res, next) => {
+    const schema = Joi.object({
+      email: Joi.string()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: ["com", "net"] },
+        })
+        .required(),
+    });
+    const validationResult = schema.validate(req.body);
+    if (validationResult.error) {
+      next(new ValidationError("Missing required field email"));
+    }
+    next();
+  },
 };
