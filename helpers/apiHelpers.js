@@ -1,8 +1,4 @@
-const {
-  WrongParametersError,
-  MissingFieldError,
-  ValidationError,
-} = require("./errors");
+const { RestApiError } = require("./errors");
 
 const asyncWrapper = (controller) => {
   return (req, res, next) => {
@@ -11,14 +7,10 @@ const asyncWrapper = (controller) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  if (
-    err instanceof WrongParametersError ||
-    err instanceof MissingFieldError ||
-    err instanceof ValidationError
-  ) {
+  if (err instanceof RestApiError) {
     return res
       .status(err.status)
-      .json({ status: "failure", code: err.status, message: err.message });
+      .json({ status: err.type, code: err.status, message: err.message });
   }
   res.status(500).json({ message: err.message });
 };

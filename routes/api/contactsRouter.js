@@ -15,6 +15,9 @@ const {
 } = require("../../controllers/contactsController");
 
 const { asyncWrapper } = require("../../helpers/apiHelpers");
+const { authMiddleware } = require("../../middlewares/authMiddleware");
+
+router.use(authMiddleware);
 
 router.get("/", asyncWrapper(getContactsController));
 router.get("/:contactId", asyncWrapper(getContactByIdContoller));
@@ -31,4 +34,6 @@ router.patch(
   asyncWrapper(updateStatusContactController)
 );
 
-module.exports = router;
+module.exports = {
+  contactsRouter: router,
+};
