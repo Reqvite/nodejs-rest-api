@@ -4,12 +4,12 @@ const {
   logout,
   currentUser,
   updateSubscription,
+  updateUserAvatar,
 } = require("../service/authService");
 
 const registrationController = async (req, res) => {
   const { email, password } = req.body;
   const user = await registration(email, password);
-
   res.status(201).json({ status: "Created", code: 201, user });
 };
 
@@ -34,10 +34,19 @@ const updateSubscriptionController = async (req, res) => {
   res.status(200).json({ status: "Updated", code: 200, updatedUser });
 };
 
+const updateUserAvatarController = async (req, res) => {
+  const avatarURL = await updateUserAvatar(
+    { photo: req.file, id: req.user._id },
+    req.body
+  );
+  res.status(200).json({ status: "OK", code: 200, avatarURL });
+};
+
 module.exports = {
   registrationController,
   loginContoller,
   currentUserController,
   logoutController,
   updateSubscriptionController,
+  updateUserAvatarController,
 };

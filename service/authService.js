@@ -6,12 +6,19 @@ const {
 } = require("../helpers/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
+const fs = require("fs").promises;
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 
 const registration = async (email, password) => {
+  const avatarURL = gravatar.url(email);
   try {
     const user = new User({
       email,
       password,
+      avatarURL,
     });
     await user.save();
     return {
@@ -82,10 +89,32 @@ const updateSubscription = async (id, { subscription }) => {
   return { email: user.email, subscription: user.subscription };
 };
 
+const updateUserAvatar = async ({ photo, id }) => {
+  const { path: photoPath, originalname } = photo;
+  const fileName = `${id}_${uuidv4()}_${originalname}`;
+  const resultPath = path.join(__dirname, "../public/avatars", fileName);
+  const file = await Jimp.read(photoPath);
+  await file.resize(250, 250).writeAsync(resultPath);
+  fs.unlink(photoPath);
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      avatarURL: resultPath,
+    },
+    { new: true }
+  );
+
+  if (!user) {
+    throw new WrongParametersError(`Not found`);
+  }
+  return { avatarURL: user.avatarURL };
+};
+
 module.exports = {
   registration,
   login,
   logout,
   currentUser,
   updateSubscription,
+  updateUserAvatar,
 };
