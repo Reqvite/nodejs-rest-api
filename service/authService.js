@@ -1,9 +1,3 @@
-const { User } = require("../models/userModel");
-const {
-  RegistrationConflictError,
-  NotAuthorizideError,
-  WrongParametersError,
-} = require("../helpers/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const gravatar = require("gravatar");
@@ -11,16 +5,39 @@ const Jimp = require("jimp");
 const fs = require("fs").promises;
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
+const sgMail = require("@sendgrid/mail");
+const { User } = require("../models/userModel");
+const {
+  RegistrationConflictError,
+  NotAuthorizideError,
+  WrongParametersError,
+  RestApiError,
+} = require("../helpers/errors");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const registration = async (email, password) => {
   const avatarURL = gravatar.url(email);
+  const verificationToken = uuidv4();
   try {
     const user = new User({
       email,
       password,
       avatarURL,
+      verificationToken,
     });
     await user.save();
+
+    const msg = {
+      to: email,
+      from: "reqvite2233@gmail.com",
+      subject: "Rest API verification",
+      text: `Follow the link to confirm your registration http://localhost:3000/api/users/verify/${verificationToken}`,
+      html: `<h2>Follow the link to confirm your registration:<a href="http://localhost:3000/api/users/verify/${verificationToken}">Verification token</a><h2>`,
+    };
+
+    await sgMail.send(msg);
+
     return {
       email: user.email,
       subscription: user.subscription,
@@ -30,8 +47,47 @@ const registration = async (email, password) => {
   }
 };
 
+const registrationConfirmation = async (verificationToken) => {
+  const verification = await User.findOne({ verificationToken });
+  if (!verification) {
+    throw new WrongParametersError("Not found");
+  }
+  await User.findByIdAndUpdate(verification._id, {
+    $set: { verify: true, verificationToken: null },
+  });
+};
+
+const resendVerificationEmail = async (email) => {
+  const verificationToken = uuidv4();
+  const { verify } = await User.findOne({ email });
+
+  if (verify) {
+    throw new RestApiError("Verification has already been passed");
+  }
+
+  const user = await User.findOneAndUpdate({ email }, { verificationToken });
+  const msg = {
+    to: email,
+    from: "reqvite2233@gmail.com",
+    subject: "Rest API verification",
+    text: `Follow the link to confirm your registration http://localhost:3000/api/users/verify/${verificationToken}`,
+    html: `<h2>Follow the link to confirm your registration:<a href="http://localhost:3000/api/users/verify/${verificationToken}">Verification token</a><h2>`,
+  };
+
+  await sgMail.send(msg);
+
+  return {
+    email: user.email,
+    subscription: user.subscription,
+  };
+};
+
 const login = async (email, password) => {
-  const user = await User.findOne({ email });
+  const { verify } = await User.findOne({ email });
+  if (!verify) {
+    throw new NotAuthorizideError("Please confirm your registration.");
+  }
+  const user = await User.findOne({ email, verify: true });
   if (!user) {
     throw new NotAuthorizideError("Email or password is wrong");
   }
@@ -117,4 +173,6 @@ module.exports = {
   currentUser,
   updateSubscription,
   updateUserAvatar,
+  registrationConfirmation,
+  resendVerificationEmail,
 };

@@ -5,12 +5,30 @@ const {
   currentUser,
   updateSubscription,
   updateUserAvatar,
+  registrationConfirmation,
+  resendVerificationEmail,
 } = require("../service/authService");
 
 const registrationController = async (req, res) => {
   const { email, password } = req.body;
   const user = await registration(email, password);
   res.status(201).json({ status: "Created", code: 201, user });
+};
+
+const registrationConfirmationController = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  await registrationConfirmation(verificationToken);
+
+  res.json({ status: "OK", code: 200, message: "Verification successful" });
+};
+
+const resendVerificationEmailController = async (req, res) => {
+  const { email } = req.body;
+
+  await resendVerificationEmail(email);
+
+  res.json({ status: "OK", code: 200, message: "Verification email sent" });
 };
 
 const loginContoller = async (req, res) => {
@@ -44,9 +62,11 @@ const updateUserAvatarController = async (req, res) => {
 
 module.exports = {
   registrationController,
+  registrationConfirmationController,
   loginContoller,
   currentUserController,
   logoutController,
   updateSubscriptionController,
   updateUserAvatarController,
+  resendVerificationEmailController,
 };
